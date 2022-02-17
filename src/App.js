@@ -1,24 +1,44 @@
-import logo from './logo.svg';
 import './App.css';
+import Home from './pages/Home';
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+import ProductList from './pages/ProductList';
+import Product from './pages/Product';
+import Cart from './pages/Cart';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function App() {
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const getCategpries = async () => {
+      await axios
+        .get("https://fakestoreapi.com/products/categories")
+        .then((res) => setCategories(res.data));
+    };
+    getCategpries();
+  }, []);
+  
+  const user = useSelector(state =>  state.users)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+    <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Home categories={categories} />} />
+        <Route path='/login' element={user.currentUser?<Home categories={categories} /> : <Login  categories={categories}/>} />
+        <Route path='/register' element={user.currentUser?<Home categories={categories} /> : <Register  categories={categories}/>} />
+        <Route path='/cart' element={<Cart  categories={categories}/>} />
+        <Route path='/products/:category' element={<ProductList categories={categories} />} />
+        <Route path='/product/:id'  element={<Product  categories={categories}/>} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
